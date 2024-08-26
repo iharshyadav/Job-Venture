@@ -1,4 +1,4 @@
-# Next.js App Setup Guide
+# Project Setup Guide
 
 This is a Hackathon application configured to use `pnpm` as the package manager. Follow this guide to set up the application, run it using HTTPS for localhost, and manage environment variables.
 
