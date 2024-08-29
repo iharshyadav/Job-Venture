@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { SocketProvider } from "./components/SocketProvider";
+import { NextUIProvider } from "@nextui-org/react";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,11 +17,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
     <html lang="en">
       <SocketProvider>
-        <body className={inter.className}>{children}</body>
+        <body className={inter.className}>
+          <NextUIProvider>{children}</NextUIProvider>
+          <Toaster position="top-right"/>
+        </body>
       </SocketProvider>
     </html>
   );
