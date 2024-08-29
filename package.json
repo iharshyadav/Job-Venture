@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "canvas": "^2.11.2",
     "next": "14.2.6",
     "react": "^18",
     "react-dom": "^18",
@@ -16,7 +17,7 @@
     "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^20.16.1",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",

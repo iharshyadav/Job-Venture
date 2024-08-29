@@ -14,6 +14,7 @@ const RoomPage: FC<RoomPageProps> = ({}) => {
   const [remoteSocketId, setRemoteSocketId] = useState('');
   const [myStream, setMyStream] = useState<MediaStream | undefined>();
   const [remoteStream, setRemoteStream] = useState();
+  const [focused, setFocused] = useState(true);
 
   const handleUserJoined = useCallback(({ email, id } : {email : string , id : string}) => {
     console.log(`Email ${email} joined room`);
@@ -28,6 +29,7 @@ const RoomPage: FC<RoomPageProps> = ({}) => {
     const offer = await peer.getOffer();
     socket?.emit("user:call", { to: remoteSocketId, offer });
     setMyStream(stream)
+    startDetection(stream);
   },[remoteSocketId, socket])
 
   const handleIncommingCall = useCallback(
@@ -41,6 +43,7 @@ const RoomPage: FC<RoomPageProps> = ({}) => {
       console.log(`Incoming Call`, from, offer);
       const ans = await peer.getAnswer(offer);
       socket?.emit("call:accepted", { to: from, ans });
+      startDetection(stream);
     },
     [socket]
   );
@@ -130,38 +133,70 @@ const RoomPage: FC<RoomPageProps> = ({}) => {
     setMyStream(screenStream);
   }, [myStream]);
 
+  const startDetection = (stream: MediaStream) => {
+    const videoTrack = stream.getVideoTracks()[0];
+    // @ts-ignore
+    const imageCapture = new ImageCapture(videoTrack);
+
+    const sendFrameToModel = async () => {
+      const bitmap = await imageCapture.grabFrame();
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(bitmap, 0, 0);
+      const base64Image = canvas.toDataURL('image/jpeg');
+
+      // Send this base64Image to your backend API for ML processing
+      const response = await fetch('/api/detect-focus', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ image: base64Image }),
+      });
+
+      const { focused } = await response.json();
+      setFocused(focused);
+    };
+
+    setInterval(sendFrameToModel, 2000); // Send a frame every 2 seconds
+  };
+
   return (
-    <div>
+    <div className="h-screen w-full">
       <h1>Room Page</h1>
       <h4>{remoteSocketId ? "Connected" : "No one in room"}</h4>
       {myStream && <button onClick={sendStreams}>Send Stream</button>}
       {remoteSocketId && <button onClick={handleCallUser}>CALL</button>}
-      {myStream && (
-        <>
-          <h1>My Stream</h1>
-          <ReactPlayer
-            playing
-            muted
-            height="100px"
-            width="200px"
-            url={myStream}
-          />
-          <button onClick={handleScreenShare}>Share Screen</button>
-        </>
-      )}
-
-      {remoteStream && (
-        <>
-          <h1>Remote Stream</h1>
-          <ReactPlayer
-            playing
-            muted
-            height="100px"
-            width="200px"
-            url={remoteStream}
-          />
-        </>
-      )}
+      <div className="flex items-center justify-center">
+        {myStream && (
+          <>
+            <h1>My Stream</h1>
+            <ReactPlayer
+              playing
+              muted
+              height="600px"
+              width="700px"
+              url={myStream}
+            />
+            <button onClick={handleScreenShare}>Share Screen</button>
+            <p>Status: {focused ? "Focused" : "Unfocused"}</p>
+          </>
+        )}
+        {remoteStream && (
+          <>
+            <h1>Remote Stream</h1>
+            <ReactPlayer
+              playing
+              muted
+              height="600px"
+              width="700px"
+              url={remoteStream}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 }

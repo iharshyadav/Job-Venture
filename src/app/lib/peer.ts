@@ -1,4 +1,3 @@
-// @ts-nocheck
 class PeerService {
     peer: any;
     constructor() {
