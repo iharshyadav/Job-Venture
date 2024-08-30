@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { GoogleReCaptcha } from "react-google-recaptcha-v3";
 
-const EmployeeSingUp = () => {
+const CustomerSignUp = () => {
   const [state, formAction] = useFormState(signup, null as any);
   const [token, setToken] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
@@ -18,7 +18,7 @@ const EmployeeSingUp = () => {
   useEffect(() => {
     if (state?.success) {
       toast.success(state.data.message);
-      // router.push("/dashboard/employee");
+      // router.push("/dashboard/customer");
     } else if (!state?.success && state?.error) {
       toast.warning(state.error?.message);
     }
@@ -27,7 +27,7 @@ const EmployeeSingUp = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-bold text-4xl">Get more opportunities</h1>
+      <h1 className="font-bold text-4xl">Get more for company</h1>
       <Button variant="bordered" radius="sm" className="border-1">
         <FcGoogle />
         <span className="font-bold text-bold text-[#4640DE]">
@@ -94,7 +94,7 @@ const EmployeeSingUp = () => {
         </Link>
       </span>
       <span className="text-xs mr-auto">
-        By clicking 'Continue', you acknowledge that you have read and accept{" "}
+        By clicking &rsquo;Continue&rsquo;, you acknowledge that you have read and accept{" "}
         <br className="sm:flex hidden" />
         the
         <Link href="" className="text-[#4640DE]">
@@ -111,4 +111,4 @@ const EmployeeSingUp = () => {
   );
 };
 
-export default EmployeeSingUp;
+export default CustomerSignUp;

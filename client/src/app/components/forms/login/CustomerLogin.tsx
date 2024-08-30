@@ -1,14 +1,14 @@
 import { Button, Input } from "@nextui-org/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
-import { useFormState } from "react-dom";
 import { FcGoogle } from "react-icons/fc";
+import Submit from "../../Submit";
+import { useRouter } from "next/navigation";
+import { useFormState } from "react-dom";
 import { toast } from "sonner";
 import login from "@/app/actions/login";
-import Submit from "../../Submit";
 
-const EmployeeLogin = () => {
+const CustomerLogin = () => {
   const [state, formAction] = useFormState(login, null as any);
   const router = useRouter();
 
@@ -23,7 +23,7 @@ const EmployeeLogin = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-bold text-4xl">Welcome back, Buddy!</h1>
+      <h1 className="font-bold text-4xl">Welcome back, Mister!</h1>
       <Button variant="bordered" radius="sm" className="border-1">
         <FcGoogle />
         <span className="font-bold text-bold text-[#4640DE]">
@@ -35,13 +35,13 @@ const EmployeeLogin = () => {
       </div>
       <form action={formAction} className="flex flex-col gap-6">
         <Input
-          name="username"
+          name="ID"
           variant="bordered"
           radius="sm"
-          placeholder="Enter your username"
+          placeholder="Enter your ID"
           required
           isRequired
-          label="Username"
+          label="ID"
           labelPlacement="outside"
           classNames={{
             inputWrapper: "border-[1px]",
@@ -71,7 +71,7 @@ const EmployeeLogin = () => {
         <Submit name="Login" />
       </form>
       <span className="text-sm mr-auto">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link
           href="https://localhost:3000/signUp"
           className="text-[#4640DE] font-bold"
@@ -83,4 +83,4 @@ const EmployeeLogin = () => {
   );
 };
 
-export default EmployeeLogin;
+export default CustomerLogin;

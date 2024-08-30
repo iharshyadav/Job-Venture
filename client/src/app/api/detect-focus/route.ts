@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     fs.writeFileSync(tempImagePath, imageBuffer);
 
     // Call the Python script to process the image
-    const pythonScriptPath = path.join(__dirname, 'detect_focus.py');
+    const pythonScriptPath = path.join(process.cwd(), 'scripts', 'detect_focus.py');
     if (!fs.existsSync(pythonScriptPath)) {
       throw new Error(`Python script not found at ${pythonScriptPath}`);
     }

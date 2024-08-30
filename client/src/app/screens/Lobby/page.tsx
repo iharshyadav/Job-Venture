@@ -37,15 +37,15 @@ const LobbyScreen = () => {
   }, [socket, handleJoinRoom]);
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <h1>Lobby</h1>
-      <form onSubmit={handleSubmitForm}>
+    <div className="flex flex-col gap-6 items-center justify-center h-screen">
+      <h1 className="font-semibold underline text-3xl">Lobby</h1>
+      <form onSubmit={handleSubmitForm} className="flex flex-col">
         <label htmlFor="email">Email ID</label>
         <input
           type="email"
           id="email"
           value={email}
-          className=" text-black"
+          className=" text-black border-2 border-black p-1"
           onChange={(e) => setEmail(e.target.value)}
         />
         <br />
@@ -53,12 +53,12 @@ const LobbyScreen = () => {
         <input
           type="text"
           id="room"
-          className=" text-black"
+          className=" text-black border-2 border-black p-1"
           value={room}
           onChange={(e) => setRoom(e.target.value)}
         />
         <br />
-        <button>Join</button>
+        <button className="p-1 align-middle rounded-md pr-4 pl-4 bg-black text-white">Join</button>
       </form>
     </div>
   );
