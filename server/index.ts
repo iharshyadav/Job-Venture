@@ -1,14 +1,16 @@
 import express, { Response } from 'express'
 import empRoutes from './router/empRoutes'
 import userRoutes from './router/userRoutes'
+import apiRoutes from './router/apiRoutes'
+import cookieParser from 'cookie-parser'
+import { Requests } from './utils/def'
+import { Server } from "socket.io"
+import connectDB from './config/db'
 import 'dotenv/config'
 import cors from 'cors'
-import cookieParser from 'cookie-parser'
 // import session from 'express-session'
 // import connectRedis from 'connect-redis'
 // import redisClient from './config/redis'
-import { Requests } from './utils/def'
-import { Server } from "socket.io";
 
 
 // const RedisStore = new connectRedis({
@@ -16,6 +18,7 @@ import { Server } from "socket.io";
 //     prefix: "myapp"
 // })
 
+connectDB()
 const app = express()
 
 app.use(cors())
@@ -32,6 +35,7 @@ app.use(cookieParser())
 
 app.use('/user', userRoutes)
 app.use('/emp', empRoutes)
+app.use('/api', apiRoutes)
 
 app.get('/', (req: Requests, res: Response): Response => {
   return res.status(201).json({ msg: "Server is Live!!🚀" })

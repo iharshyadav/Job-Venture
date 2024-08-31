@@ -3,21 +3,21 @@ import { hash, compare } from "bcrypt"
 import jwt from "jsonwebtoken"
 
 interface IjobApplicantData{
-    name: string,
     username: string,
     email: string,
     resume: string,
     coverLetter: string
-    //aur honge
 }
 
 interface IjobPosted{
     jobTitle: string,
     jobDescription: string,
     jobQualifications: string,
+    companyName:string,
     jobPayRange: string,
-    jobApplicants: number,
-    jobApplicantData: [IjobApplicantData]
+    isAccepting: boolean,
+    jobApplicants?: number,
+    jobApplicantData?: [IjobApplicantData]
 }
 
 interface IEmp {
@@ -27,18 +27,80 @@ interface IEmp {
     mobile:string,
     password: string,
     company: string,
-    jobPosted: [IjobPosted]
+    jobPosted: [IjobPosted],
+    refreshToken: string,
     match: (password: string) => Promise<boolean>,
     generateAccessToken(): string,
     generateRefreshToken(): string
 }
 
 
+const jobApplicantsSchema = new Schema<IjobApplicantData>({
+    username:{
+        type:String,
+        required: true,
+        trim: true
+    },
+    email:{
+        type:String,
+        required: true,
+        trim: true
+    },
+    resume:{
+        type:String,
+        required: true,
+        trim: true
+    },
+    coverLetter:{        
+        type:String,
+        required: true,
+        trim: true
+    }
+}, { timestamps:true })
+
+const jobPostedSchema = new Schema<IjobPosted>({
+    jobTitle:{
+        type:String,
+        required: true,
+        trim: true
+    },
+    jobDescription:{
+        type:String,
+        required: true,
+        trim: true
+    },
+    jobQualifications:{
+        type:String,
+        required: true,
+        trim: true
+    },
+    jobPayRange:{
+        type:String,
+        required: true,
+        trim: true
+    },
+    companyName:{
+        type:String,
+        required: true,
+        trim: true
+    },
+    jobApplicants:{
+        type:Number,
+        default: 0
+    },
+    isAccepting:{
+        type:Boolean,
+        default:true
+    },
+    jobApplicantData:{
+        type:[jobApplicantsSchema]
+    }
+}, { timestamps:true })
+
 const EmpSchema = new Schema<IEmp>({
     name: {
         type: String,
         required: true,
-        unique: true,
         trim: true
     },
     email: {
@@ -60,6 +122,16 @@ const EmpSchema = new Schema<IEmp>({
     password: { 
         type: String,
         required: true 
+    },
+    company: { 
+        type: String,
+        required: true 
+    },
+    jobPosted: { 
+        type: [jobPostedSchema]
+    },
+    refreshToken:{
+        type:String
     }
 }, { timestamps:true })
 
@@ -99,4 +171,4 @@ EmpSchema.methods.generateRefreshToken = function(){
     )
 }
 
-export default model<IEmp>("Employer", EmpSchema)
+export default model<IEmp>("JobVentures Employer", EmpSchema)
