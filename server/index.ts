@@ -94,6 +94,9 @@ io.on("connection", function connection(socket) {
     io.to(to).emit("peer:nego:final", { from: socket.id, ans })
   })
 
+  socket.on("call:end", ({ to }) => {
+    io.to(to).emit("call:end", { from:socket.id });
+  });
 })
 
 

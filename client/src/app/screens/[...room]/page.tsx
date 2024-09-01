@@ -1,6 +1,7 @@
 "use client";
 import { useSocket } from "@/app/components/SocketProvider";
 import peer from "@/app/libs/peer";
+import { useRouter } from "next/navigation";
 import { FC, useCallback, useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 
@@ -11,9 +12,11 @@ const RoomPage: FC<RoomPageProps> = ({}) => {
   const [remoteSocketId, setRemoteSocketId] = useState<string>("");
   const [myStream, setMyStream] = useState<MediaStream | undefined>();
   const [remoteStream, setRemoteStream] = useState<MediaStream | undefined>();
-  const [focused, setFocused] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isCameraOn, setIsCameraOn] = useState(true);
+  const [focused, setFocused] = useState<boolean>(true);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isCameraOn, setIsCameraOn] = useState<boolean>(true);
+  const [isScreenSharing, setIsScreenSharing] = useState<boolean>(false);
+  const router = useRouter();
 
   const handleUserJoined = useCallback(({ email, id }: { email: string; id: string }) => {
     console.log(`Email ${email} joined room`);
@@ -103,8 +106,10 @@ const RoomPage: FC<RoomPageProps> = ({}) => {
       setMyStream(undefined);
       setRemoteStream(undefined);
       socket?.emit("call:end", { to: remoteSocketId });
+      router.push("/screens/Lobby")
+      window.location.reload();
     }
-  }, [myStream, remoteSocketId, socket]);
+  }, [myStream, remoteSocketId, socket, router]);
 
   useEffect(() => {
     socket?.on("user:joined", handleUserJoined);
@@ -135,6 +140,21 @@ const RoomPage: FC<RoomPageProps> = ({}) => {
     }
 
     setMyStream(screenStream);
+    setIsScreenSharing(true);
+  }, [myStream]);
+
+  const handleStopScreenShare = useCallback(() => {
+    if (myStream) {
+      const screenTrack = myStream.getVideoTracks()[0];
+      screenTrack.stop();
+
+      navigator.mediaDevices.getUserMedia({ video: true }).then((cameraStream) => {
+        const cameraTrack = cameraStream.getVideoTracks()[0];
+        peer.replaceTrack(screenTrack, cameraTrack, myStream);
+        setMyStream(cameraStream);
+        setIsScreenSharing(false);
+      });
+    }
   }, [myStream]);
 
   const handleToggleMute = useCallback(() => {
@@ -155,9 +175,6 @@ const RoomPage: FC<RoomPageProps> = ({}) => {
 
   const startDetection = (stream: MediaStream) => {
 
-    // if(myStream === undefined || remoteStream === undefined){
-    //   return console.log("failed to send base64Image to the ML Model");
-    // }
     const videoTrack = stream.getVideoTracks()[0];
     // @ts-ignore
     const imageCapture = new ImageCapture(videoTrack);
@@ -189,81 +206,105 @@ const RoomPage: FC<RoomPageProps> = ({}) => {
 
   return (
     <div className="h-screen w-full flex flex-col bg-gray-100 text-gray-900">
-  {/* Header */}
-  <header className="flex justify-between items-center p-4 bg-white shadow-sm border-b border-gray-300">
-    <h1 className="text-xl font-medium tracking-wide">Interview Room</h1>
-    <div className="flex space-x-3">
-      <button
-        onClick={handleScreenShare}
-        className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 transition duration-200 text-white text-sm font-semibold shadow-sm"
-      >
-        {/* <span className="material-icons align-middle">screen_share</span> */}
-        <span className="ml-2 align-middle">Share Screen</span>
-      </button>
-      <button
-        onClick={handleEndCall}
-        className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 transition duration-200 text-white text-sm font-semibold shadow-sm"
-      >
-        {/* <span className="material-icons align-middle">call_end</span> */}
-        <span className="ml-2 align-middle">End Call</span>
-      </button>
+      {/* Header */}
+      <header className="flex justify-between items-center p-4 bg-white shadow-sm border-b border-gray-300">
+        <h1 className="text-xl font-medium tracking-wide">Interview Room</h1>
+        <div className="flex space-x-3">
+          {isScreenSharing ? (
+            <button onClick={handleStopScreenShare}>Stop Screen Share</button>
+          ) : (
+            myStream &&
+            remoteStream && (
+              <button
+                onClick={handleScreenShare}
+                className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 transition duration-200 text-white text-sm font-semibold shadow-sm"
+              >
+                {/* <span className="material-icons align-middle">screen_share</span> */}
+                <span className="ml-2 align-middle">Share Screen</span>
+              </button>
+            )
+          )}
+          {myStream && remoteStream && (
+            <button
+              onClick={handleEndCall}
+              className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 transition duration-200 text-white text-sm font-semibold shadow-sm"
+            >
+              {/* <span className="material-icons align-middle">call_end</span> */}
+              <span className="ml-2 align-middle">End Call</span>
+            </button>
+          )}
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+        {myStream && (
+          <div className="relative bg-white rounded-md shadow-md border border-gray-300 overflow-hidden">
+            <h2 className="absolute top-2 left-2 bg-opacity-80 bg-black text-white px-3 py-1 rounded-sm text-sm font-medium">
+              My Video
+            </h2>
+            <ReactPlayer
+              playing
+              muted
+              height="100%"
+              width="100%"
+              url={myStream}
+              className="rounded-md"
+            />
+            <p className="absolute bottom-2 left-2 bg-opacity-80 bg-black text-white px-3 py-1 rounded-sm text-sm font-medium">
+              {focused ? "You are focused" : "You seem distracted"}
+            </p>
+          </div>
+        )}
+        {remoteStream && (
+          <div className="relative bg-white rounded-md shadow-md border border-gray-300 overflow-hidden">
+            <h2 className="absolute top-2 left-2 bg-opacity-80 bg-black text-white px-3 py-1 rounded-sm text-sm font-medium">
+              Interviewer
+            </h2>
+            <ReactPlayer
+              playing
+              muted
+              height="100%"
+              width="100%"
+              url={remoteStream}
+              className="rounded-md"
+            />
+          </div>
+        )}
+      </main>
+
+      {/* Call Controls */}
+      <footer className="flex justify-center items-center p-4 bg-white shadow-sm border-t border-gray-300">
+        <button
+          onClick={handleToggleMute}
+          className="px-3 py-2 mx-2 rounded-md bg-gray-200 hover:bg-gray-300 transition duration-200 text-gray-700 text-sm font-medium shadow-sm"
+        >
+          {/* <span className="material-icons align-middle">{isMuted ? "mic_off" : "mic"}</span> */}
+          <span className="ml-2 align-middle">
+            {isMuted ? "Unmute" : "Mute"}
+          </span>
+        </button>
+
+        <button
+          onClick={handleToggleCamera}
+          className="px-3 py-2 mx-2 rounded-md bg-gray-200 hover:bg-gray-300 transition duration-200 text-gray-700 text-sm font-medium shadow-sm"
+        >
+          {/* <span className="material-icons align-middle">{isCameraOn ? "videocam_off" : "videocam"}</span> */}
+          <span className="ml-2 align-middle">
+            {isCameraOn ? "Turn On Camera" : "Turn Off Camera"}
+          </span>
+        </button>
+        {remoteSocketId && (
+          <button
+            onClick={handleCallUser}
+            className="px-4 py-2 mx-2 rounded-md bg-green-600 hover:bg-green-700 transition duration-200 text-white text-sm font-medium shadow-sm"
+          >
+            {/* <span className="material-icons align-middle">call</span> */}
+            <span className="ml-2 align-middle">Call</span>
+          </button>
+        )}
+      </footer>
     </div>
-  </header>
-
-  {/* Main Content */}
-  <main className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-    {myStream && (
-      <div className="relative bg-white rounded-md shadow-md border border-gray-300 overflow-hidden">
-        <h2 className="absolute top-2 left-2 bg-opacity-80 bg-black text-white px-3 py-1 rounded-sm text-sm font-medium">
-          My Video
-        </h2>
-        <ReactPlayer playing muted height="100%" width="100%" url={myStream} className="rounded-md" />
-        <p className="absolute bottom-2 left-2 bg-opacity-80 bg-black text-white px-3 py-1 rounded-sm text-sm font-medium">
-          {focused ? "You are focused" : "You seem distracted"}
-        </p>
-      </div>
-    )}
-    {remoteStream && (
-      <div className="relative bg-white rounded-md shadow-md border border-gray-300 overflow-hidden">
-        <h2 className="absolute top-2 left-2 bg-opacity-80 bg-black text-white px-3 py-1 rounded-sm text-sm font-medium">
-          Interviewer
-        </h2>
-        <ReactPlayer playing muted height="100%" width="100%" url={remoteStream} className="rounded-md" />
-      </div>
-    )}
-  </main>
-
-  {/* Call Controls */}
-  <footer className="flex justify-center items-center p-4 bg-white shadow-sm border-t border-gray-300">
-    <button
-      onClick={handleToggleMute}
-      className="px-3 py-2 mx-2 rounded-md bg-gray-200 hover:bg-gray-300 transition duration-200 text-gray-700 text-sm font-medium shadow-sm"
-    >
-      {/* <span className="material-icons align-middle">{isMuted ? "mic_off" : "mic"}</span> */}
-      <span className="ml-2 align-middle">{isMuted ? "Unmute" : "Mute"}</span>
-    </button>
-    <button
-      onClick={handleToggleCamera}
-      className="px-3 py-2 mx-2 rounded-md bg-gray-200 hover:bg-gray-300 transition duration-200 text-gray-700 text-sm font-medium shadow-sm"
-    >
-      {/* <span className="material-icons align-middle">{isCameraOn ? "videocam_off" : "videocam"}</span> */}
-      <span className="ml-2 align-middle">{isCameraOn ? "Turn On Camera" : "Turn Off Camera"}</span>
-    </button>
-    {remoteSocketId && (
-      <button
-        onClick={handleCallUser}
-        className="px-4 py-2 mx-2 rounded-md bg-green-600 hover:bg-green-700 transition duration-200 text-white text-sm font-medium shadow-sm"
-      >
-        {/* <span className="material-icons align-middle">call</span> */}
-        <span className="ml-2 align-middle">Call</span>
-      </button>
-    )}
-  </footer>
-</div>
-
-
-
-
   );
 };
 
