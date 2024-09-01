@@ -12,9 +12,9 @@ interface Query {
 }
 
 interface IExperience {
-    duration:string,
-    company:string,
-    jobTitle:string
+    duration: string,
+    company: string,
+    jobTitle: string
 }
 
 
@@ -39,14 +39,23 @@ const genTokens = async (userId: string) => {
 
 const register = async (req: Requests, res: Response) => {
     try {
-        const { name, email, username, mobile, password, otp } = req.body
+        const { name, email, username, mobile, password, otp, recaptchaToken } = req.body
+
+        const response = await axios.post(
+            `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`
+        )
+
+        if (!response.data.success) {
+            return res.status(400).json({ error: "reCAPTCHA verification failed" });
+        }
+
         if (!name || !email || !username || !password || !otp)
-            return res.status(403).json({ error: "All the fields are mandatory" })    
+            return res.status(403).json({ error: "All the fields are mandatory" })
         const empCheck = await empSchema.findOne({
             $or: [
                 { email: email },
                 { username: username }
-            ]    
+            ]
         })
         if (empCheck)
             return res.status(409).json({ error: "Account already exists for this email or username as Employer" })
@@ -54,24 +63,24 @@ const register = async (req: Requests, res: Response) => {
             $or: [
                 { email: email },
                 { username: username }
-            ]    
-        })    
+            ]
+        })
         if (userData) {
             return res.status(409).json({ error: "User with this email or username already exists" })
-        }    
-        const otpValid=await otpSchema.findOne({
+        }
+        const otpValid = await otpSchema.findOne({
             $and: [
                 { email: email },
                 { username: username },
-                {otp: otp}
-            ]    
+                { otp: otp }
+            ]
         })
-        if(!otpValid)
-            return res.status(404).json({error: "Wrong OTP"})
+        if (!otpValid)
+            return res.status(404).json({ error: "Wrong OTP" })
         const newUser = await userSchema.create({
             name, email, username, mobile, password
         })
-        await otpSchema.deleteOne({ _id: otpValid._id })    
+        await otpSchema.deleteOne({ _id: otpValid._id })
         const { accessToken, refreshToken } = await genTokens((newUser._id).toString())
 
         return res
@@ -80,29 +89,38 @@ const register = async (req: Requests, res: Response) => {
             .cookie("refreshToken", refreshToken, { httpOnly: true, secure: true })
             .json({ message: "Registered successfully", accessToken, refreshToken })
 
-    } catch (error) {    
+    } catch (error) {
         console.error(error)
         return res.status(500).json({ error: 'Error occured while registering user' })
-    }    
-}    
+    }
+}
 
 const login = async (req: Requests, res: Response) => {
     try {
-        const { email, username, password } = req.body
+        const { email, username, password, recaptchaToken } = req.body
+
+        const response = await axios.post(
+            `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`
+        )
+
+        if (!response.data.success) {
+            return res.status(400).json({ error: "reCAPTCHA verification failed" });
+        }
+
         if ((!email && !username) || !password)
             return res.status(403).json({ error: "All the fields are mandatory" })
-        const query: Query = {}
+        const query:Query={}
         if (email)
             query.email = email
         if (username)
             query.username = username
-        const userData = await userSchema.findOne(query) 
+        const userData = await userSchema.findOne(query)
         if (!userData) {
             return res.status(409).json({ error: "User with this email or username does not exists" })
-        }    
-        const checkPassword= await userData.match(password) 
-        if(!checkPassword)
-            return res.status(401).json({error:"Wrong credentials"})
+        }
+        const checkPassword = await userData.match(password)
+        if (!checkPassword)
+            return res.status(401).json({ error: "Wrong credentials" })
         const { accessToken, refreshToken } = await genTokens((userData._id).toString())
 
         return res
@@ -111,19 +129,19 @@ const login = async (req: Requests, res: Response) => {
             .cookie("refreshToken", refreshToken, { httpOnly: true, secure: true })
             .json({ message: "Logged in successfully", accessToken, refreshToken })
 
-    } catch (error) {    
+    } catch (error) {
         console.error(error)
-        return res.status(500).json({ error: 'Error occured while registering user' })
-    }    
-}    
+        return res.status(500).json({ error: 'Error occured while signing in' })
+    }
+}
 
-const updateProfile = async(req:Requests, res:Response)=>{
+const updateProfile = async (req: Requests, res: Response) => {
     try {
         const { username, education, college, location, expectedSalary, prefferedWorkType } = req.body
-        if(!username)
-            return res.status(403).json({error:"username is required"})
+        if (!username)
+            return res.status(403).json({ error: "username is required" })
         const updatedUser = await userSchema.findOneAndUpdate(
-            {username:username},
+            { username: username },
             {
                 $set: {
                     education, college, location, expectedSalary, prefferedWorkType
@@ -136,29 +154,29 @@ const updateProfile = async(req:Requests, res:Response)=>{
             return res.status(404).json({ error: "User not found" })
         }
 
-        return res.status(200).json({message:"User data updated"})
+        return res.status(200).json({ message: "User data updated" })
     } catch (error) {
         console.log(error)
-        return res.status(200).json({message:"Error updating the user data"})
+        return res.status(200).json({ message: "Error updating the user data" })
     }
 }
 
-const updateSkills = async(req:Requests, res:Response)=>{
+const updateSkills = async (req: Requests, res: Response) => {
     try {
-        const { username, skills} = req.body
-        if(!username)
-            return res.status(403).json({message:"username is required"})
-        const user = await userSchema.findOne({username:username})
-        if(!user)
-            return res.status(404).json({error:"User not found"})
+        const { username, skills } = req.body
+        if (!username)
+            return res.status(403).json({ message: "username is required" })
+        const user = await userSchema.findOne({ username: username })
+        if (!user)
+            return res.status(404).json({ error: "User not found" })
 
-        const newSkills=skills.filter((skill:string)=>!user.skill.includes(skill))
+        const newSkills = skills.filter((skill: string) => !user.skill.includes(skill))
 
-        if(newSkills.length===0)
-            return res.status(200).json({message:"No new skills to add, these skills already exists."})
+        if (newSkills.length === 0)
+            return res.status(200).json({ message: "No new skills to add, these skills already exists." })
 
         const updatedUser = await userSchema.findOneAndUpdate(
-            {username:username},
+            { username: username },
             {
                 $push: {
                     skill: { $each: newSkills }
@@ -167,29 +185,29 @@ const updateSkills = async(req:Requests, res:Response)=>{
             { new: true, runValidators: true }
         )
 
-        return res.status(200).json({message:"Skils updated"})
+        return res.status(200).json({ message: "Skils updated" })
     } catch (error) {
         console.log(error)
-        return res.status(200).json({message:"Error updating the user data"})
+        return res.status(200).json({ message: "Error updating the user data" })
     }
 }
 
-const updateExp = async(req:Requests, res:Response)=>{
+const updateExp = async (req: Requests, res: Response) => {
     try {
-        const { username, experiences}: { username: string; experiences: IExperience[] } = req.body
-        if(!username)
-            return res.status(403).json({message:"username is required"})
-        const user = await userSchema.findOne({username:username})
-        if(!user)
-            return res.status(404).json({error:"User not found"})
-        const existingExperiences=user.experience.map(exp=>({
-            company:exp.company,
-            jobTitle:exp.jobTitle
+        const { username, experiences }: { username: string; experiences: IExperience[] } = req.body
+        if (!username)
+            return res.status(403).json({ message: "username is required" })
+        const user = await userSchema.findOne({ username: username })
+        if (!user)
+            return res.status(404).json({ error: "User not found" })
+        const existingExperiences = user.experience.map(exp => ({
+            company: exp.company,
+            jobTitle: exp.jobTitle
         }))
 
-        const newExperiences= experiences.filter((newExp:IExperience)=>{
-            return !existingExperiences.some(exp=>
-                exp.company===newExp.company && exp.jobTitle===newExp.jobTitle
+        const newExperiences = experiences.filter((newExp: IExperience) => {
+            return !existingExperiences.some(exp =>
+                exp.company === newExp.company && exp.jobTitle === newExp.jobTitle
             )
         })
         if (newExperiences.length === 0) {
@@ -206,24 +224,24 @@ const updateExp = async(req:Requests, res:Response)=>{
             { new: true, runValidators: true }
         )
 
-        return res.status(200).json({message:"Experiences updated"})
+        return res.status(200).json({ message: "Experiences updated" })
     } catch (error) {
         console.log(error)
-        return res.status(200).json({message:"Error updating the user data"})
+        return res.status(200).json({ message: "Error updating the user data" })
     }
 }
 
 
 
-const applyJob = async(req:Requests, res:Response)=>{
+const applyJob = async (req: Requests, res: Response) => {
     try {
-        const { jobId, username, email, resume, coverLetter} = req.body
+        const { jobId, username, email, resume, coverLetter } = req.body
         const userCheck = await userSchema.findOne(
-                { username: username }
+            { username: username }
         )
         if (!userCheck)
             return res.status(409).json({ error: "No account exists for this username" })
-        if (!mongoose.Types.ObjectId.isValid(jobId)) 
+        if (!mongoose.Types.ObjectId.isValid(jobId))
             return res.status(400).json({ error: "Invalid job ID." })
         const jobDetail = await empSchema.aggregate([
             { $match: { 'jobPosted._id': new mongoose.Types.ObjectId(jobId) } },
@@ -231,11 +249,11 @@ const applyJob = async(req:Requests, res:Response)=>{
             { $match: { 'jobPosted._id': new mongoose.Types.ObjectId(jobId) } },
             { $project: { jobPosted: 1, _id: 0 } }
         ])
-        const jobData=jobDetail.flatMap(it=>it.jobPosted)
+        const jobData = jobDetail.flatMap(it => it.jobPosted)
         console.log(jobData)
         const employer = await empSchema.findOne({ 'jobPosted._id': jobId })
-        const job=[{
-            jobId:jobId, jobTitle:jobData[0].jobTitle, companyName:jobData[0].companyName, postedBy: employer.username
+        const job = [{
+            jobId: jobId, jobTitle: jobData[0].jobTitle, companyName: jobData[0].companyName, postedBy: employer.username
         }]
         const updateAppliedUser = await userSchema.findOneAndUpdate(
             { username: username },
@@ -246,8 +264,8 @@ const applyJob = async(req:Requests, res:Response)=>{
             },
             { new: true, runValidators: true }
         )
-        const applicantData={
-            username,email,resume,coverLetter
+        const applicantData = {
+            username, email, resume, coverLetter
         }
         const updateJobEmp = await empSchema.findOneAndUpdate(
             { 'jobPosted._id': new mongoose.Types.ObjectId(jobId) },
@@ -257,20 +275,20 @@ const applyJob = async(req:Requests, res:Response)=>{
             },
             { new: true, runValidators: true }
         )
-        return res.status(201).json({msg:"Successfully applied for the job."})
+        return res.status(201).json({ msg: "Successfully applied for the job." })
     } catch (error) {
         console.error(error)
-        return res.status(400).json({error:"Error applying for the job"})
+        return res.status(400).json({ error: "Error applying for the job" })
     }
 }
 
-const displayAllJobs=async(req:Requests,res:Response)=>{
+const displayAllJobs = async (req: Requests, res: Response) => {
     try {
-        const allJobs= await empSchema.find({},{jobPosted:1,_id:0})
-        const jobs=allJobs.flatMap(it=>it.jobPosted)
+        const allJobs = await empSchema.find({}, { jobPosted: 1, _id: 0 })
+        const jobs = allJobs.flatMap(it => it.jobPosted)
         return res.status(200).json(jobs)
     } catch (error) {
-        return res.status(400).json({error:"Error occured while fetching data"})
+        return res.status(400).json({ error: "Error occured while fetching data" })
     }
 }
 

@@ -21,7 +21,12 @@ import cors from 'cors'
 connectDB()
 const app = express()
 
-app.use(cors())
+
+app.use(cors({
+  credentials: true,
+  origin: "http://localhost:3000"
+}))
+
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 app.use(cookieParser())
@@ -47,11 +52,10 @@ const server = app.listen(port, () => {
   console.log(`Server is up and Running at http://localhost:${port}`)
 })
 
-const io = new Server(server,{
+const io = new Server(server, {
   cors: {
-      origin: "*",
-      methods: ["GET", "POST"],
-      credentials: true
+    credentials: true,
+    origin: ["https://hackathon-client-livid.vercel.app", "http://localhost:3000"]
   }
 });
 
