@@ -1,7 +1,7 @@
 "use server"
 
 import axios from "axios";
-import { routes } from "../lib/api";
+import { routes } from "../libs/api";
 
 export default async function signup(preState: any, formData: FormData) {
   const info = {
