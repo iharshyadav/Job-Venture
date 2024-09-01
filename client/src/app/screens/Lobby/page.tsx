@@ -2,6 +2,8 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSocket } from "@/app/components/SocketProvider";
+import { InterviewCalender } from "@/app/components/forms/Calender-form";
+import { ThemeSwitcher } from "@/app/components/theme/themeSwitcher";
 
 const LobbyScreen = () => {
   const [email, setEmail] = useState("");
@@ -37,7 +39,8 @@ const LobbyScreen = () => {
   }, [socket, handleJoinRoom]);
 
   return (
-    <div className="flex flex-col gap-6 items-center justify-center h-screen">
+    <div className="flex flex-col gap-6 items-center justify-start pt-10 h-screen">
+      <ThemeSwitcher />
       <h1 className="font-semibold underline text-3xl">Lobby</h1>
       <form onSubmit={handleSubmitForm} className="flex flex-col">
         <label htmlFor="email">Email ID</label>
@@ -58,7 +61,8 @@ const LobbyScreen = () => {
           onChange={(e) => setRoom(e.target.value)}
         />
         <br />
-        <button className="p-1 align-middle rounded-md pr-4 pl-4 bg-black text-white">Join</button>
+        <InterviewCalender />
+        <button className="p-1 mt-5 align-middle rounded-md pr-4 pl-4 bg-black text-white">Join</button>
       </form>
     </div>
   );

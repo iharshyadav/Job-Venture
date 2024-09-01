@@ -1,6 +1,6 @@
 "use client";
 import { useSocket } from "@/app/components/SocketProvider";
-import peer from "@/app/lib/peer";
+import peer from "@/app/libs/peer";
 import { FC, useCallback, useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 
@@ -46,11 +46,19 @@ const RoomPage: FC<RoomPageProps> = ({}) => {
 
   const sendStreams = useCallback(() => {
     if (myStream) {
-      for (const track of myStream.getTracks()) {
-        peer.peer.addTrack(track, myStream);
+      try {
+        for (const track of myStream.getTracks()) {
+          peer.peer.addTrack(track, myStream);
+          console.log(`Track ${track.kind} added to peer connection`);
+        }
+      } catch (error) {
+        console.error("Error adding tracks to peer connection:", error);
       }
+    } else {
+      console.warn("No media stream available to send");
     }
   }, [myStream]);
+  
 
   const handleCallAccepted = useCallback(({ from, ans }: { from: string; ans: any }) => {
     peer.setLocalDescription(ans);
@@ -87,20 +95,33 @@ const RoomPage: FC<RoomPageProps> = ({}) => {
     });
   }, []);
 
+   const handleEndCall = useCallback(() => {
+    if (myStream) {
+      myStream.getTracks().forEach(track => track.stop());
+      const videoTracks = myStream.getVideoTracks();
+      videoTracks.forEach(track => track.stop());
+      setMyStream(undefined);
+      setRemoteStream(undefined);
+      socket?.emit("call:end", { to: remoteSocketId });
+    }
+  }, [myStream, remoteSocketId, socket]);
+
   useEffect(() => {
     socket?.on("user:joined", handleUserJoined);
     socket?.on("incomming:call", handleIncommingCall);
     socket?.on("call:accepted", handleCallAccepted);
     socket?.on("peer:nego:needed", handleNegoNeedIncomming);
     socket?.on("peer:nego:final", handleNegoNeedFinal);
+    socket?.on("call:end", handleEndCall);
     return () => {
       socket?.off("user:joined", handleUserJoined);
       socket?.off("incomming:call", handleIncommingCall);
       socket?.off("call:accepted", handleCallAccepted);
       socket?.off("peer:nego:needed", handleNegoNeedIncomming);
       socket?.off("peer:nego:final", handleNegoNeedFinal);
+      socket?.off("call:end", handleEndCall);
     };
-  }, [socket, handleUserJoined, handleIncommingCall, handleCallAccepted, handleNegoNeedIncomming, handleNegoNeedFinal]);
+  }, [socket, handleUserJoined, handleIncommingCall, handleCallAccepted, handleNegoNeedIncomming, handleNegoNeedFinal,handleEndCall]);
 
   const handleScreenShare = useCallback(async () => {
     const screenStream = await navigator.mediaDevices.getDisplayMedia({
@@ -130,16 +151,13 @@ const RoomPage: FC<RoomPageProps> = ({}) => {
     }
   }, [isCameraOn, myStream]);
 
-  const handleEndCall = useCallback(() => {
-    if (myStream) {
-      myStream.getTracks().forEach(track => track.stop());
-      setMyStream(undefined);
-      setRemoteStream(undefined);
-      socket?.emit("call:end", { to: remoteSocketId });
-    }
-  }, [myStream, remoteSocketId, socket]);
+ 
 
   const startDetection = (stream: MediaStream) => {
+
+    // if(myStream === undefined || remoteStream === undefined){
+    //   return console.log("failed to send base64Image to the ML Model");
+    // }
     const videoTrack = stream.getVideoTracks()[0];
     // @ts-ignore
     const imageCapture = new ImageCapture(videoTrack);
@@ -153,7 +171,7 @@ const RoomPage: FC<RoomPageProps> = ({}) => {
       ctx?.drawImage(bitmap, 0, 0);
       const base64Image = canvas.toDataURL("image/jpeg");
 
-      // Send this base64Image to your backend API for ML processing
+      // Sending this base64Image to your backend API for ML processing
       const response = await fetch("/api/detect-focus", {
         method: "POST",
         headers: {
