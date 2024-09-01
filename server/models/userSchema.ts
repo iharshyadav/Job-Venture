@@ -7,6 +7,12 @@ interface IExperience {
     company:string,
     jobTitle:string
 }
+interface IappliedJobs {
+    jobId:string,
+    jobTitle:string,
+    companyName:string,
+    postedBy:string,
+}
 
 enum WorkType {
     Remote = "Remote",
@@ -14,13 +20,13 @@ enum WorkType {
     Hybrid = "Hybrid"
 }
 
-
 interface IUser {
     name: string,
     email: string,
     username: string,
     mobile:string,
     password: string,
+    role:string,
     education: string,
     college: string,
     location:string,
@@ -30,11 +36,31 @@ interface IUser {
     experience: [IExperience],
     prefferedWorkType: WorkType,
     prefferedLocations: string,
+    appliedJobs: [IappliedJobs],
     refreshToken: string, 
     match: (password: string) => Promise<boolean>,
     generateAccessToken(): string,
     generateRefreshToken(): string
 }
+
+const appliedJobSchema=new Schema<IappliedJobs>({
+    jobId: {
+        type: String, 
+        required: true 
+    },
+    jobTitle: {
+        type: String, 
+        required: true 
+    },
+    companyName: {
+        type: String, 
+        required: true 
+    },
+    postedBy: {
+        type: String, 
+        required: true 
+    }
+})
 
 const ExperienceSchema=new Schema<IExperience>({
     duration: {
@@ -55,7 +81,6 @@ const UserSchema = new Schema<IUser>({
     name: {
         type: String,
         required: true,
-        unique: true,
         trim: true
     },
     email: {
@@ -78,43 +103,47 @@ const UserSchema = new Schema<IUser>({
         type: String,
         required: true 
     },
+    role: {
+        type: String,
+        default: "user"
+    },
     education: { 
         type: String,
-        required: true 
+        default:""
     },
     college: { 
         type: String,
-        required: true 
+        default:""
     },
     location: { 
         type: String,
-        required: true 
+        default:""
     },
     resume: { 
         type: String,
-        unique: true,
-        required: true 
+        default:"",
+        // unique: true
     },
     expectedSalary: { 
         type: String,
-        required: true 
+        default:""
     },
     prefferedWorkType: { 
         type: String,
-        enum: Object.values(WorkType),
-        required: true 
+        enum: Object.values(WorkType)
+    },
+    skill: {
+        type: [String]
+    },
+    experience: {
+        type: [ExperienceSchema]
+    },
+    appliedJobs:{
+        type:[appliedJobSchema]
     },
     refreshToken: {
         type: String
     },
-    skill: {
-        type: [String],
-        required: true
-    },
-    experience: {
-        type: [ExperienceSchema],
-        required: true
-    }
 }, { timestamps:true })
 
 UserSchema.pre("save", async function (next) {
@@ -134,6 +163,7 @@ UserSchema.methods.generateAccessToken = function(){
             _id: this._id,
             email: this.email,
             username: this.username,
+            role: this.role
         },
         process.env.ACCESS_TOKEN_SECRET_USER,
         {
@@ -153,4 +183,4 @@ UserSchema.methods.generateRefreshToken = function(){
     )
 }
 
-export default model<IUser>("User", UserSchema)
+export default model<IUser>("JobVentures User", UserSchema)
