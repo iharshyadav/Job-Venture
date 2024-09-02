@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import {
   Navbar,
@@ -32,22 +33,22 @@ export default function Navtop() {
       </NavbarContent>
 
       <NavbarContent className="hidden sm:flex pr-3" justify="start">
-        <NavbarBrand className="font-black text-lg">Vision</NavbarBrand>
+        <Link href="/"><NavbarBrand className="font-black text-lg">Job Venture</NavbarBrand></Link>
       </NavbarContent>
 
       <NavbarContent className="hidden sm:flex gap-12 font-semibold" justify="center">
         <NavbarItem>
-          <Link color="foreground" href="#">
+          <Link color="foreground" href="/findJobs">
             Find Jobs
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link href="#" aria-current="page">
+          <Link href="/learnEnhance" aria-current="page">
             Learn & Enhance
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link color="foreground" href="#">
+          <Link color="foreground" href="/postjobs">
             Post Jobs
           </Link>
         </NavbarItem>
@@ -55,7 +56,7 @@ export default function Navtop() {
 
       <NavbarContent justify="end">
         <NavbarItem className="hidden lg:flex">
-          <Link href="#" className="text-[#4640DE] font-bold">
+          <Link href="/login" className="text-[#4640DE] font-bold">
             Login
           </Link>
         </NavbarItem>
@@ -63,7 +64,7 @@ export default function Navtop() {
           <Button
             as={Link}
             className="bg-[#4640DE] text-white font-bold"
-            href="#"
+            href="/signUp"
             variant="flat"
           >
             Sign Up
@@ -73,17 +74,17 @@ export default function Navtop() {
 
       <NavbarMenu>
         <NavbarMenuItem>
-          <Link color="foreground" href="#">
+          <Link color="foreground" href="/findJobs">
             Find Jobs
           </Link>
         </NavbarMenuItem>
         <NavbarMenuItem>
-          <Link href="#" aria-current="page">
+          <Link href="/learnEnhance" aria-current="page">
             Learn & Enhance
           </Link>
         </NavbarMenuItem>
         <NavbarMenuItem>
-          <Link color="foreground" href="#">
+          <Link color="foreground" href="/postjobs">
             Post Jobs
           </Link>
         </NavbarMenuItem>
