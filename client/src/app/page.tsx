@@ -1,14 +1,16 @@
 import Image from "next/image";
 import Navtop from "./components/Navtop";
-import { Button, Input } from "@nextui-org/react";
+import { Button, Divider, Input } from "@nextui-org/react";
 import { CiSearch, CiLocationOn, CiGlobe } from "react-icons/ci";
 import { RiPencilRuler2Line } from "react-icons/ri";
 import Category from "./components/jobs/Category";
 import Featured from "./components/jobs/Featured";
+import NewOpening from "./components/jobs/NewOpening";
+import Submit from "./components/Submit";
 
 export default function Home() {
   return (
-    <main className="flex flex-col gap-12">
+    <main className="flex flex-col gap-16">
       <header className="handlady">
         <Navtop />
         <div className="mt-6 flex justify-center px-12 items-center">
@@ -89,6 +91,30 @@ export default function Home() {
         </div>
       </article>
 
+      <article className="relative">
+        <div className="mx-auto w-10/12 flex lg:justify-start justify-center rounded-2xl bg-[#4640DE] px-16 lg:py-32 py-12">
+          <div className="flex flex-col gap-3 lg:w-1/3">
+            <h1 className="text-5xl font-bold text-white">
+              Start posting jobs today
+            </h1>
+            <p className="text-white">Start posting jobs for free.</p>
+            <Button
+              radius="none"
+              className="bg-white font-bold text-[#4640DE] w-fit"
+            >
+              Sign Up for free
+            </Button>
+          </div>
+        </div>
+        <Image
+          src="/bookLady.png"
+          alt="booklady"
+          width={300}
+          height={500}
+          className="absolute -top-8 right-[25%] lg:flex hidden"
+        />
+      </article>
+
       <article className="mx-auto w-10/12 flex flex-col gap-6">
         <div className="flex justify-between items-end">
           <h1 className="text-3xl font-bold">
@@ -134,16 +160,95 @@ export default function Home() {
         </div>
       </article>
 
-      <article className="mx-auto w-10/12 flex flex-col gap-6">
-        <div className="flex justify-between items-end">
-          <h1 className="text-3xl font-bold">
-            Latest <span className="text-[#26A4FF]">jobs open</span>
-          </h1>
-          <span className="text-[#4650DE] font-semibold text-sm">
-            Show all jobs &#8594;
-          </span>
+      <article className="handlady py-8">
+        <div className="mx-auto w-10/12 flex flex-col gap-6">
+          <div className="flex justify-between items-end">
+            <h1 className="text-3xl font-bold">
+              Latest <span className="text-[#26A4FF]">jobs open</span>
+            </h1>
+            <span className="text-[#4650DE] font-semibold text-sm">
+              Show all jobs &#8594;
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <NewOpening
+              place="Revault - Madrid"
+              title="Email marketing"
+              type="Full time"
+              skills={["Design", "Marketing"]}
+              icon={<CiGlobe size={40} />}
+            />
+            <NewOpening
+              place="Revault - Madrid"
+              title="Email marketing"
+              type="Full time"
+              skills={["Design", "Marketing"]}
+              icon={<CiGlobe size={40} />}
+            />
+            <NewOpening
+              place="Revault - Madrid"
+              title="Email marketing"
+              type="Full time"
+              skills={["Design", "Marketing"]}
+              icon={<CiGlobe size={40} />}
+            />
+            <NewOpening
+              place="Revault - Madrid"
+              title="Email marketing"
+              type="Full time"
+              skills={["Design", "Marketing"]}
+              icon={<CiGlobe size={40} />}
+            />
+          </div>
         </div>
       </article>
+
+      <footer className="bg-[#202430] flex flex-col gap-8 py-8">
+        <div className="mx-auto w-10/12 py-8 grid lg:grid-cols-12 sm:grid-cols-6 grid-cols-1 gap-10">
+          <div className="flex flex-col gap-12 col-span-4">
+            <h1 className="text-xl font-black text-white">Vision</h1>
+            <p className="text-white">
+              Great platform for the job seeker that passionate about startups.
+              Find your dream job easier and enhance your skills with the help
+              of personalized AI driven path.
+            </p>
+          </div>
+          <div className="flex flex-col gap-12 col-span-2">
+            <h1 className="text-xl font-semibold text-white">About</h1>
+            <ul className="flex flex-col gap-4 text-white">
+              <li>Companies</li>
+              <li>Pricing</li>
+              <li>Terms</li>
+              <li>Advice</li>
+              <li>Privacy Policy</li>
+            </ul>
+          </div>
+          <div className="flex flex-col gap-12 col-span-2">
+            <h1 className="text-xl font-semibold text-white">Resources</h1>
+            <ul className="flex flex-col gap-4 text-white">
+              <li>Help Docs</li>
+              <li>Guide</li>
+              <li>Updates</li>
+              <li>Contact us</li>
+            </ul>
+          </div>
+          <div className="flex flex-col gap-12 col-span-4 self-center">
+            <p className="text-white">
+              The latest job news, articles, sent to your inbox weekly.
+            </p>
+            <form className="flex gap-2">
+              <Input placeholder="Email address" />
+              <Button className="bg-[#4640DE] text-white font-bold px-6">
+                Subscribe
+              </Button>
+            </form>
+          </div>
+        </div>
+        <Divider className="bg-zinc-500 w-10/12 mx-auto" />
+        <div className="mx-auto w-10/12">
+          <p className="text-white">2024. All rights reserved.</p>
+        </div>
+      </footer>
     </main>
   );
 }

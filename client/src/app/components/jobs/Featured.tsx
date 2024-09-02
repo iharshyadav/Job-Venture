@@ -25,7 +25,7 @@ const Featured = (props: Prop) => {
         </Button>
       </div>
       <div className="flex flex-col items-start">
-        <h2 className="font-bold">{props.title}</h2>
+        <h2 className="font-bold text-lg">{props.title}</h2>
         <p className="text-black/40">{props.place}</p>
       </div>
       <p>{props.description}</p>
