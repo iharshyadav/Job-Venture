@@ -46,8 +46,8 @@ export default function Home() {
           <Image
             src="/handlady.png"
             alt="lady"
-            width={500}
-            height={700}
+            width={380}
+            height={620}
             className="lg:flex hidden"
           />
         </div>
