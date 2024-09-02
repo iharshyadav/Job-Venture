@@ -47,12 +47,11 @@ const server = app.listen(port, () => {
   console.log(`Server is up and Running at http://localhost:${port}`)
 })
 
-const io = new Server(server,{
+const io = new Server(server, {
   cors: {
-      origin: "*",
-      methods: ["GET", "POST"],
-      credentials: true
-  }
+    credentials: true,
+    origin: ["https://hackathon-client-livid.vercel.app", "https://localhost:3000"]
+  }
 });
 
 const emailToSocketIdMap = new Map()

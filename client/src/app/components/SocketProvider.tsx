@@ -15,12 +15,14 @@ export const SocketProvider = (props: any) => {
   const socket = useMemo(
     () =>
       io(
-        process.env.NODE_ENV === "production"
-          ? process.env.SOCKET_URL!
-          : "http://localhost:5000"
+       "https://3.86.181.161.nip.io",
+        {
+          // "transports": ['websocket','polling'],
+          withCredentials: true
+        }
       ),
     []
-  );
+   );
 
   return (
     <SocketContext.Provider value={socket}>
