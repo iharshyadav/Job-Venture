@@ -52,6 +52,11 @@ export default function Navtop() {
             Post Jobs
           </Link>
         </NavbarItem>
+        <NavbarItem>
+          <Link href="/screens/Lobby" aria-current="page">
+            Interview
+          </Link>
+        </NavbarItem>
       </NavbarContent>
 
       <NavbarContent justify="end">

@@ -27,9 +27,9 @@ const FindAJob: React.FC = () => {
             <div>
               <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
               <select id="location" className="mt-1 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>New York</option>
-                <option>San Francisco</option>
-                <option>Los Angeles</option>
+                <option>Bengluru</option>
+                <option>Mumbai</option>
+                <option>Delhi</option>
                 {/* Add more options as needed */}
               </select>
             </div>
@@ -62,7 +62,7 @@ const FindAJob: React.FC = () => {
               {/* Example Job Cards with varied descriptions */}
               <div className="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <h3 className="text-lg font-semibold text-blue-600">Frontend Developer at Creative Labs</h3>
-                <p className="text-gray-600 mt-2">Location: New York, NY</p>
+                <p className="text-gray-600 mt-2">Location: Bengaluru, Karnataka</p>
                 <p className="text-gray-600 mt-2">Industry: Technology</p>
                 <p className="text-gray-600 mt-2">Job Type: Full-time</p>
                 <p className="text-gray-600 mt-2">Join a dynamic team working on cutting-edge web technologies. Experience with React and modern JavaScript frameworks required.</p>
@@ -73,7 +73,7 @@ const FindAJob: React.FC = () => {
 
               <div className="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <h3 className="text-lg font-semibold text-blue-600">Marketing Specialist at Global Corp</h3>
-                <p className="text-gray-600 mt-2">Location: San Francisco, CA</p>
+                <p className="text-gray-600 mt-2">Location: Mumbai, India</p>
                 <p className="text-gray-600 mt-2">Industry: Marketing</p>
                 <p className="text-gray-600 mt-2">Job Type: Part-time</p>
                 <p className="text-gray-600 mt-2">Help drive brand awareness and engagement through innovative marketing strategies. Strong analytical skills and creativity needed.</p>
@@ -84,7 +84,7 @@ const FindAJob: React.FC = () => {
 
               <div className="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <h3 className="text-lg font-semibold text-blue-600">Data Analyst at FinTech Solutions</h3>
-                <p className="text-gray-600 mt-2">Location: Los Angeles, CA</p>
+                <p className="text-gray-600 mt-2">Location: Delhi, India</p>
                 <p className="text-gray-600 mt-2">Industry: Finance</p>
                 <p className="text-gray-600 mt-2">Job Type: Contract</p>
                 <p className="text-gray-600 mt-2">Analyze financial data to provide insights and support business decisions. Proficiency in SQL and data visualization tools required.</p>
@@ -95,7 +95,7 @@ const FindAJob: React.FC = () => {
 
               <div className="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <h3 className="text-lg font-semibold text-blue-600">UX Designer at InnovateTech</h3>
-                <p className="text-gray-600 mt-2">Location: Austin, TX</p>
+                <p className="text-gray-600 mt-2">Location: Hyderabad, Telangana</p>
                 <p className="text-gray-600 mt-2">Industry: Design</p>
                 <p className="text-gray-600 mt-2">Job Type: Full-time</p>
                 <p className="text-gray-600 mt-2">Create user-centered designs for web and mobile applications. Experience with wireframing and prototyping tools is essential.</p>
@@ -106,7 +106,7 @@ const FindAJob: React.FC = () => {
 
               <div className="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <h3 className="text-lg font-semibold text-blue-600">Software Engineer at DevMasters</h3>
-                <p className="text-gray-600 mt-2">Location: Chicago, IL</p>
+                <p className="text-gray-600 mt-2">Location:Delhi, India</p>
                 <p className="text-gray-600 mt-2">Industry: Technology</p>
                 <p className="text-gray-600 mt-2">Job Type: Full-time</p>
                 <p className="text-gray-600 mt-2">Develop and maintain high-performance software solutions. Strong knowledge of C++ and experience with cloud platforms required.</p>
