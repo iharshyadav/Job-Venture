@@ -171,7 +171,7 @@ export default function Home() {
               Show all jobs &#8594;
             </span>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
             <NewOpening
               place="Revault - Madrid"
               title="Email marketing"
